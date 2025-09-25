@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 import joblib
 
-# tiny sample dataset (replace with real dataset later)
+# tiny sample dataset 
 texts = [
     "I love this product, it's amazing!",
     "This is wonderful and excellent.",
