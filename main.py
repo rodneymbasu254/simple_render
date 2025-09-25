@@ -13,23 +13,19 @@ class PredictResponse(BaseModel):
 
 app = FastAPI(title="Simple Sentiment API")
 
-# CORS - during dev allow all; in production restrict origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # change to your app origin(s)
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-MODEL_PATH = os.environ.get("MODEL_PATH", "model.joblib")
-API_KEY = os.environ.get("API_KEY")  # set on Render for security
+API_KEY = os.environ.get("API_KEY")
 
-# load model (pipeline contains vectorizer + classifier)
-model = joblib.load(MODEL_PATH)
+model = joblib.load("model.joblib")
 
 def verify_api_key(x_api_key: str = Header(None)):
-    # If API_KEY env var is not set, skip check (developer convenience)
     if API_KEY and x_api_key != API_KEY:
         raise HTTPException(status_code=401, detail="Invalid API key")
 
@@ -40,8 +36,7 @@ def root():
 @app.post("/predict", response_model=PredictResponse, dependencies=[Depends(verify_api_key)])
 def predict(req: PredictRequest):
     text = req.text
-    # model is a pipeline (vectorizer + classifier)
-    probs = model.predict_proba([text])[0]  # requires classifier supports predict_proba
+    probs = model.predict_proba([text])[0] 
     idx = int(probs.argmax())
     label = str(model.classes_[idx])
     score = float(probs[idx])
